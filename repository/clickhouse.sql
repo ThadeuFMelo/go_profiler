@@ -10,11 +10,12 @@ PRIMARY KEY (user_id, timestamp);
 
 -- Path: repository/clickhouse.sql
 
-CREATE TABLE helloworld.processMessages(
+CREATE TABLE helloworld.process_messages(
     pid UInt32,
-    cpu_usage Float32,
-    memory_usage Float32,
-    timestamp DateTime
+    cpu Float32,
+    mem Float32,
+    name String,
+    time_stamp DateTime,
     ctime DateTime
 )
 ENGINE = MergeTree()

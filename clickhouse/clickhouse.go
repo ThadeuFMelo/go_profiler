@@ -20,7 +20,6 @@ type Clickhouse struct {
 func Connect() *ch.DB {
 	db := ch.Connect(
 		ch.WithAddr("localhost:9000"),
-		ch.WithPassword("123456"),
 		ch.WithDatabase("helloworld"),
 		ch.WithTimeout(5*time.Second),
 		ch.WithDialTimeout(5*time.Second),

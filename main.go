@@ -4,14 +4,15 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"go-profiler/clickhouse"
+	"go-profiler/gopsutil"
+	"go-profiler/models"
+	prometheusutil "go-profiler/prometheusutils"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"sort"
 	"time"
-	"twitter/clickhouse"
-	"twitter/gopsutil"
-	"twitter/models"
 )
 
 type Vehicle struct {
@@ -27,8 +28,11 @@ type My_first_table struct {
 	metric    float64
 }
 
+const prometheusEndpoint string = "localhost:2112"
+
 func main() {
 
+	prometheusutil.Register(prometheusEndpoint)
 	fmt.Println("Hello, World!")
 	url := "https://gorest.co.in/public/v2/users"
 	resp, err := http.Get(url)
@@ -90,10 +94,10 @@ func main() {
 	fmt.Println(resI)
 	fmt.Println("------------------------------------------------")
 
-	for i := 0; i < 10000; i++ {
+	for i := 0; i < 2000000; i++ {
 		//get process info
 		process, _ := gopsutil.GetProcessesInfo()
-		timestamp := time.Now().Unix()
+		timestamp := time.Now()
 		for _, p := range process {
 
 			//add timestamp to process message struct
@@ -114,6 +118,9 @@ func main() {
 				fmt.Println("Error inserting process message")
 				fmt.Println(err)
 			}
+			prometheusutil.ProcessCPUUsage.WithLabelValues(p.Name).Set(p.CPUUsage)
+			prometheusutil.ProcessMemoryUsage.WithLabelValues(p.Name).Set(float64(p.Memory))
+
 			fmt.Println("------------------------------------------------")
 			fmt.Println(resP)
 			fmt.Println("------------------------------------------------")
