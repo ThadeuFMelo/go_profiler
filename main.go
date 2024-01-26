@@ -4,11 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"go-profiler/clickhouse"
+	"go-profiler/database/clickhouse"
 	"go-profiler/gopsutil"
 	"go-profiler/models"
 	prometheusutil "go-profiler/prometheusutils"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"sort"
@@ -44,7 +44,7 @@ func main() {
 
 	// And we unmarshal our JSON, assigning the result to vehicles
 	json.Unmarshal([]byte(response), &vehicles)
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Fatal(err)
 	}
