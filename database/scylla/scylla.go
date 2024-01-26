@@ -3,6 +3,7 @@ package scyllaDB
 import (
 	"time"
 
+	"go-profiler/database"
 	log "go-profiler/gopsutil"
 
 	"github.com/gocql/gocql"
@@ -35,10 +36,10 @@ func Connect() *gocql.Session {
 	return session
 }
 
-func SelectQuery(session *gocql.Session, logger *zap.Logger) []gocql.RowData {
+func SelectQuery(session *gocql.Session, table database.IScyllaTable, selectFields []string, logger *zap.Logger) []gocql.RowData {
 	logger.Info("Displaying Results:")
-	q := session.Query("SELECT first_name,last_name,picture_location FROM users")
-
+	query := table.BuildSelectQuery(selectFields)
+	q := session.Query(query)
 	it := q.Iter()
 	defer func() {
 		if err := it.Close(); err != nil {

@@ -5,7 +5,6 @@ import (
 	"go-profiler/database"
 	scyllaDB "go-profiler/database/scylla"
 	"go-profiler/gopsutil"
-	"go-profiler/models"
 	prometheusutil "go-profiler/prometheusutils"
 	"sort"
 )
@@ -44,7 +43,7 @@ func main() {
 	// ctx := context.Background()
 	logger := gopsutil.CreateLogger("info")
 
-	results := scyllaDB.SelectQuery(db, logger)
+	results := scyllaDB.SelectQuery(db, &database.ScyllaUser{}, []string{"first_name", "last_name", "picture_location"}, logger)
 
 	for _, datarow := range results {
 		columns := datarow.Columns
@@ -115,7 +114,7 @@ func main() {
 	// }
 }
 
-func sortProcessByCPU(process []models.Process) []models.Process {
+func sortProcessByCPU(process []database.Process) []database.Process {
 	sort.Slice(process, func(i, j int) bool {
 		return process[i].CPUUsage > process[j].CPUUsage
 	})
