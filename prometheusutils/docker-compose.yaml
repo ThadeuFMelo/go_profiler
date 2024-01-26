@@ -10,5 +10,38 @@ services:
       - prometheus-data:/prometheus
     command: --web.enable-lifecycle  --config.file=/etc/prometheus/prometheus.yaml
 
+  grafana:
+    image: grafana/grafana:8.1.5
+    ports:
+      - 3000:3000
+    volumes:
+      - ./grafana:/etc/grafana/provisioning
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_USERS_AUTO_ASSIGN_ORG=true
+      - GF_USERS_AUTO_ASSIGN_ORG_ROLE=Admin
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_ANONYMOUS_ORG_NAME=Main Org.
+      - GF_AUTH_BASIC_ENABLED=false
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+      - GF_AUTH_DISABLE_SIGNOUT_MENU=true
+      - GF_AUTH_GENERIC_OAUTH_ENABLED=false
+      - GF_AUTH_GOOGLE_ENABLED=false
+      - GF_AUTH_PROXY_ENABLED=false
+    depends_on:
+      - prometheus
+  clickhouse:
+    image: yandex/clickhouse-server
+    ports:
+      - 8123:8123
+      - 9000:9000
+      - 9009:9009
+    environment:
+      - CLICK
+
+
+
 volumes:
   prometheus-data:
