@@ -14,17 +14,18 @@ INSERT INTO users (id, first_name, last_name, email, picture_location) VALUES (u
 
 type ProcessMessage struct {
 	Pid       uint32    `json:"pid"`
-	Cpu       float64   `json:"cpu"`
-	Mem       float32   `json:"mem"`
+	Cpu       float64   `json:"cpu_usage"`
+	Mem       float32   `json:"mem_usage"`
 	Name      string    `json:"name"`
 	TimeStamp time.Time `json:"time"`
 	Ctime     int64     `json:"ctime"`
+    TimeStamp time.Time `json:"time"`
 }
 
 CREATE TABLE process (
     pid int,
-    cpu float,
-    mem float,
+    cpu_usage float,
+    mem_usage float,
     name text,
     time timestamp,
     ctime bigint,

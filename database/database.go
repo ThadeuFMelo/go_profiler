@@ -26,10 +26,8 @@ type IScyllaTable interface {
 type ITable interface {
 	// GetTableName returns the table name
 	GetTableName() string
-	// GetColumns returns the table columns
-	GetColumns() []string
-	// GetValues returns a map with the values for each column
-	GetValues() map[string]string
+
+	Encode() IScyllaTable
 }
 
 func getColumns(s ITable) []string {
@@ -89,22 +87,19 @@ func buildSelectQuery(table IScyllaTable, fields []string) string {
 
 func buildInsertQuery(table IScyllaTable) string {
 	tableName := table.GetTableName()
-	columns := table.GetColumns()
-	query := "INSERT INTO " + tableName + " ("
-	for i := 0; i < len(columns); i++ {
-		query += columns[i]
-		if i < len(columns)-1 {
-			query += ","
-		}
+
+	values := table.GetValues()
+
+	columnsString := ""
+	valuesString := ""
+	for column, value := range values {
+		columnsString += column + ","
+		valuesString += value + ","
 	}
-	//use string wildcards to build the values part of the query later
-	query += ") VALUES ("
-	for i := 0; i < len(columns); i++ {
-		query += "?"
-		if i < len(columns)-1 {
-			query += ","
-		}
-	}
-	query += ")"
-	return query
+
+	columnsString = columnsString[:len(columnsString)-1]
+	valuesString = valuesString[:len(valuesString)-1]
+
+	return "INSERT INTO " + tableName + " (" + columnsString + ") VALUES (" + valuesString + ")"
+
 }

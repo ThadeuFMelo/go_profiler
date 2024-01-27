@@ -73,9 +73,18 @@ func SelectQuery(session *gocql.Session, table database.IScyllaTable, selectFiel
 
 }
 
-func InsertQuery(session *gocql.Session, logger *zap.Logger) {
-	logger.Info("Inserting Mike")
-	if err := session.Query("INSERT INTO mutant_data (first_name,last_name,address,picture_location) VALUES ('Mike','Tyson','1515 Main St', 'http://www.facebook.com/mtyson')").Exec(); err != nil {
-		logger.Error("insert catalog.mutant_data", zap.Error(err))
+func InsertRow(session *gocql.Session, data database.ITable, logger *zap.Logger) error {
+	logger.Info("Inserting row:")
+
+	table := data.Encode()
+	query := table.BuildInsertQuery()
+
+	q := session.Query(query)
+	if err := q.Exec(); err != nil {
+		// log error with the name of the table
+		logger.Warn("insert row", zap.Error(err))
+		return err
 	}
+
+	return nil
 }

@@ -13,14 +13,14 @@ func (User) GetTableName() string {
 	return "users"
 }
 
-// GetColumns implements ITable.
-func (u *User) GetColumns() []string {
-	return getColumns(u)
-}
-
-// GetValues implements ITable.
-func (u *User) GetValues() map[string]string {
-	return getValues(u)
+func (u *User) Encode() IScyllaTable {
+	user := &ScyllaUser{
+		FirstName:       u.FirstName,
+		LastName:        u.LastName,
+		Address:         u.Address,
+		PictureLocation: u.PictureLocation,
+	}
+	return user
 }
 
 type ScyllaUser struct {
@@ -44,8 +44,14 @@ func (u ScyllaUser) GetColumns() []string {
 	return columns
 }
 
-func (u *ScyllaUser) GetValues() map[string]string {
-	return getValues(u)
+func (u ScyllaUser) GetValues() map[string]string {
+	val := reflect.ValueOf(u)
+	typeOf := val.Type()
+	values := map[string]string{}
+	for i := 0; i < typeOf.NumField(); i++ {
+		values[typeOf.Field(i).Tag.Get("json")] = val.Field(i).String()
+	}
+	return values
 }
 
 func (u *ScyllaUser) BuildSelectQuery(fields []string) string {

@@ -7,6 +7,9 @@ import (
 	"go-profiler/gopsutil"
 	prometheusutil "go-profiler/prometheusutils"
 	"sort"
+	"time"
+
+	"go.uber.org/zap"
 )
 
 type Vehicle struct {
@@ -78,40 +81,30 @@ func main() {
 	fmt.Println(users)
 	fmt.Println("------------------------------------------------")
 
-	// for i := 0; i < 2000000; i++ {
-	// 	//get process info
-	// 	process, _ := gopsutil.GetProcessesInfo()
-	// 	timestamp := time.Now()
-	// 	for _, p := range process {
+	for i := 0; i < 2000000; i++ {
+		//get process info
+		process, _ := gopsutil.GetProcessesInfo()
+		for _, p := range process {
 
-	// 		//add timestamp to process message struct
-	// 		processMessage := &models.ProcessMessage{
-	// 			Pid:       p.ProcessId,
-	// 			Cpu:       p.CPUUsage,
-	// 			Mem:       p.Memory,
-	// 			Name:      p.Name,
-	// 			TimeStamp: timestamp,
-	// 			Ctime:     p.CreateTime,
-	// 		}
-	// 		//convert process message struct to json
-	// 		// message, _ := json.Marshal(processMessage)
-	// 		// //send to kafka
-	// 		// repository.Produce("process-events", string(message))
-	// 		resP, err := db.NewInsert().Model(processMessage).Exec(ctx)
-	// 		if err != nil {
-	// 			fmt.Println("Error inserting process message")
-	// 			fmt.Println(err)
-	// 		}
-	// 		prometheusutil.ProcessCPUUsage.WithLabelValues(p.Name).Set(p.CPUUsage)
-	// 		prometheusutil.ProcessMemoryUsage.WithLabelValues(p.Name).Set(float64(p.Memory))
+			p.Timestamp = time.Now().UnixNano()
 
-	// 		fmt.Println("------------------------------------------------")
-	// 		fmt.Println(resP)
-	// 		fmt.Println("------------------------------------------------")
-	// 	}
-	// 	fmt.Printf("%d\n", i)
-	// 	time.Sleep(100 * time.Millisecond)
-	// }
+			err := scyllaDB.InsertRow(db, &p, logger)
+			if err != nil {
+				logger.Error("insert row", zap.Error(err))
+			}
+
+			prometheusutil.ProcessCPUUsage.WithLabelValues(p.Name).Set(p.CPUUsage)
+			prometheusutil.ProcessMemoryUsage.WithLabelValues(p.Name).Set(float64(p.Memory))
+
+			fmt.Println("------------------------------------------------")
+			fmt.Println(p.Name)
+			fmt.Println(p.CPUUsage)
+			fmt.Println(p.Memory)
+			fmt.Println("------------------------------------------------")
+		}
+		fmt.Printf("%d\n", i)
+		time.Sleep(100 * time.Millisecond)
+	}
 }
 
 func sortProcessByCPU(process []database.Process) []database.Process {

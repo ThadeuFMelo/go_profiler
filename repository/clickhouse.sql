@@ -12,7 +12,7 @@ PRIMARY KEY (user_id, timestamp);
 
 CREATE TABLE helloworld.process_messages(
     pid UInt32,
-    cpu Float32,
+    cpu_usage Float32,
     mem Float32,
     name String,
     time_stamp DateTime,
@@ -25,9 +25,9 @@ SAMPLE BY pid;
 
 
 select 
-cpu,
-any(cpu) OVER(PARTITION by name order by time_stamp rows between 1 preceding and 0 preceding ) as pre_cpu,
-cpu - any(cpu) 
+cpu_usage,
+any(cpu_usage) OVER(PARTITION by name order by time_stamp rows between 1 preceding and 0 preceding ) as pre_cpu,
+cpu_usage - any(cpu_usage) 
 OVER(PARTITION by name order by time_stamp rows between 1 preceding and 0 preceding ) as deleta_cpu,
 time_stamp - any(time_stamp) OVER(PARTITION by name order by time_stamp rows between 1 preceding and 0 preceding ) as delta_time_stamp
  from helloworld.process_messages prewhere name = 'main'  order by time_stamp desc
