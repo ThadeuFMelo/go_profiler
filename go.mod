@@ -21,8 +21,10 @@ require (
 	github.com/tklauser/numcpus v0.4.0 // indirect
 	github.com/yusufpapurcu/wmi v1.2.2 // indirect
 	go.uber.org/multierr v1.10.0 // indirect
+	golang.org/x/net v0.0.0-20220225172249-27dd8689420f // indirect
 	golang.org/x/sys v0.0.0-20220829200755-d48e67d00261 // indirect
-	google.golang.org/protobuf v1.28.1 // indirect
+	golang.org/x/text v0.3.7 // indirect
+	google.golang.org/genproto v0.0.0-20220503193339-ba3ae3f07e29 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 )
 
@@ -31,4 +33,6 @@ require (
 	github.com/gocql/gocql v1.6.0
 	github.com/prometheus/client_golang v1.14.0
 	go.uber.org/zap v1.26.0
+	google.golang.org/grpc v1.46.0
+	google.golang.org/protobuf v1.32.0
 )

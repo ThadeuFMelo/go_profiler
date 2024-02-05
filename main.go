@@ -5,6 +5,7 @@ import (
 	"go-profiler/database"
 	scyllaDB "go-profiler/database/scylla"
 	"go-profiler/gopsutil"
+	grpc_server "go-profiler/grpc"
 	prometheusutil "go-profiler/prometheusutils"
 	"sort"
 	"time"
@@ -18,19 +19,16 @@ type Vehicle struct {
 	NumberOfDoors int `json:"number_of_doors"` // JSON tag is required if the JSON string is different than the Field name
 }
 
-type My_first_table struct {
-	user_id   uint64
-	message   string
-	timestamp int64
-	metric    float64
-}
-
 const prometheusEndpoint string = "localhost:2112"
 
 func main() {
 
 	prometheusutil.Register(prometheusEndpoint)
 	fmt.Println("Hello, World!")
+
+	grpcServer := grpc_server.NewGreeterServer()
+
+	go grpcServer.Start()
 
 	// body to array or users
 	var users []database.User

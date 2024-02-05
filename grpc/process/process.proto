@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+
+package grpc_process;
+
+option go_package = "go_profiler/grpc/process";
+
+
+message ProcessReply {
+    int32 pid = 1;
+    string name = 2;
+    float cpu_usage = 3;
+    float mem_usage = 4;
+    int64 ctime = 5;
+    int64 time = 6;
+}
+
+message ProcessRequest {
+    string name = 1;
+    int32 pid = 2;
+}
+
+message UsageRequest {
+    int32 pid = 1;
+}
+
+message Empty {}
+
+message CPUUsageReply {
+    float cpu_usage = 1;
+}
+
+service ProcessService {
+    rpc GetProcessInfo(ProcessRequest) returns (ProcessReply) {}
+
+}
