@@ -57,6 +57,27 @@ func (s *server) GetProcessInfo(ctx context.Context, in *grpc_process.ProcessReq
 	return nil, fmt.Errorf("process with pid %d not found", pid)
 }
 
+// return a stream of process info
+func (s *server) GetProcessList(in *grpc_process.EmptyRequest, stream grpc_process.ProcessService_GetProcessListServer) error {
+	processes, err := gopsutil.GetProcessesInfo()
+	if err != nil {
+		return err
+	}
+
+	for _, p := range processes {
+		stream.Send(&grpc_process.ProcessReply{
+			Name:     p.Name,
+			CpuUsage: float32(p.CPUUsage),
+			MemUsage: p.Memory,
+			Pid:      int32(p.ProcessId),
+			Ctime:    p.CreateTime,
+			Time:     p.Timestamp,
+		})
+	}
+
+	return nil
+}
+
 type GrpcServer struct {
 }
 

@@ -24,7 +24,7 @@ message UsageRequest {
     int32 pid = 1;
 }
 
-message Empty {}
+message EmptyRequest {}
 
 message CPUUsageReply {
     float cpu_usage = 1;
@@ -32,5 +32,7 @@ message CPUUsageReply {
 
 service ProcessService {
     rpc GetProcessInfo(ProcessRequest) returns (ProcessReply) {}
+
+    rpc GetProcessList(EmptyRequest) returns (stream ProcessReply) {}
 
 }

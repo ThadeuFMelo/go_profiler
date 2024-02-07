@@ -20,6 +20,7 @@ const _ = grpc.SupportPackageIsVersion7
 
 const (
 	ProcessService_GetProcessInfo_FullMethodName = "/grpc_process.ProcessService/GetProcessInfo"
+	ProcessService_GetProcessList_FullMethodName = "/grpc_process.ProcessService/GetProcessList"
 )
 
 // ProcessServiceClient is the client API for ProcessService service.
@@ -27,6 +28,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ProcessServiceClient interface {
 	GetProcessInfo(ctx context.Context, in *ProcessRequest, opts ...grpc.CallOption) (*ProcessReply, error)
+	GetProcessList(ctx context.Context, in *EmptyRequest, opts ...grpc.CallOption) (ProcessService_GetProcessListClient, error)
 }
 
 type processServiceClient struct {
@@ -46,11 +48,44 @@ func (c *processServiceClient) GetProcessInfo(ctx context.Context, in *ProcessRe
 	return out, nil
 }
 
+func (c *processServiceClient) GetProcessList(ctx context.Context, in *EmptyRequest, opts ...grpc.CallOption) (ProcessService_GetProcessListClient, error) {
+	stream, err := c.cc.NewStream(ctx, &ProcessService_ServiceDesc.Streams[0], ProcessService_GetProcessList_FullMethodName, opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &processServiceGetProcessListClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type ProcessService_GetProcessListClient interface {
+	Recv() (*ProcessReply, error)
+	grpc.ClientStream
+}
+
+type processServiceGetProcessListClient struct {
+	grpc.ClientStream
+}
+
+func (x *processServiceGetProcessListClient) Recv() (*ProcessReply, error) {
+	m := new(ProcessReply)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // ProcessServiceServer is the server API for ProcessService service.
 // All implementations must embed UnimplementedProcessServiceServer
 // for forward compatibility
 type ProcessServiceServer interface {
 	GetProcessInfo(context.Context, *ProcessRequest) (*ProcessReply, error)
+	GetProcessList(*EmptyRequest, ProcessService_GetProcessListServer) error
 	mustEmbedUnimplementedProcessServiceServer()
 }
 
@@ -60,6 +95,9 @@ type UnimplementedProcessServiceServer struct {
 
 func (UnimplementedProcessServiceServer) GetProcessInfo(context.Context, *ProcessRequest) (*ProcessReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetProcessInfo not implemented")
+}
+func (UnimplementedProcessServiceServer) GetProcessList(*EmptyRequest, ProcessService_GetProcessListServer) error {
+	return status.Errorf(codes.Unimplemented, "method GetProcessList not implemented")
 }
 func (UnimplementedProcessServiceServer) mustEmbedUnimplementedProcessServiceServer() {}
 
@@ -92,6 +130,27 @@ func _ProcessService_GetProcessInfo_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ProcessService_GetProcessList_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(EmptyRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(ProcessServiceServer).GetProcessList(m, &processServiceGetProcessListServer{stream})
+}
+
+type ProcessService_GetProcessListServer interface {
+	Send(*ProcessReply) error
+	grpc.ServerStream
+}
+
+type processServiceGetProcessListServer struct {
+	grpc.ServerStream
+}
+
+func (x *processServiceGetProcessListServer) Send(m *ProcessReply) error {
+	return x.ServerStream.SendMsg(m)
+}
+
 // ProcessService_ServiceDesc is the grpc.ServiceDesc for ProcessService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -104,6 +163,12 @@ var ProcessService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ProcessService_GetProcessInfo_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "GetProcessList",
+			Handler:       _ProcessService_GetProcessList_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "grpc/process/process.proto",
 }
