@@ -7,6 +7,7 @@ import (
 	"go-profiler/gopsutil"
 	grpc_server "go-profiler/grpc"
 	prometheusutil "go-profiler/prometheusutils"
+	"go-profiler/repository"
 	"sort"
 	"time"
 
@@ -25,6 +26,8 @@ func main() {
 
 	prometheusutil.Register(prometheusEndpoint)
 	fmt.Println("Hello, World!")
+
+	repository.Produce("myTopic", "myMessage")
 
 	grpcServer := grpc_server.NewGreeterServer()
 
